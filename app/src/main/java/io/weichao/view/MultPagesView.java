@@ -259,8 +259,9 @@ public class MultPagesView extends View {
             drawChild(canvas, position);
         }
 
+//        Log.d(ConstantUtil.TAG, "mScrollOffset:" + mScrollOffset);
         if ((mScrollOffset - (int) mScrollOffset) == 0.0f) {
-            mCurrentChildIndex = (getIndex((int) mScrollOffset - mHalfLoadchildCount));
+            mCurrentChildIndex = (getIndex2((int) mScrollOffset + mHalfLoadchildCount));
 //            Log.d(ConstantUtil.TAG, "mCurrentChildIndex:" + mCurrentChildIndex);
         }
 
@@ -482,7 +483,7 @@ public class MultPagesView extends View {
         //实际的便宜量
         int offset = ceil % mLoadChildCount;
 
-        //滑动１轮即错位mChildCount - mLoadChildCount，需要补偿
+        //滑动 1 轮即错位mChildCount - mLoadChildCount，需要补偿
         index -= turn * (mChildCount - mLoadChildCount);
         //与初始状态比，是向左滑动了
         if (offset > 0) {
@@ -497,6 +498,59 @@ public class MultPagesView extends View {
                 offset += mLoadChildCount;
                 if (position >= offset) {
                     index += mChildCount - mLoadChildCount;
+                }
+            }
+
+        while (index < 0 || index >= mChildCount) {
+            if (index < 0) {
+                index += mChildCount;
+            } else if (index >= mChildCount) {
+                index -= mChildCount;
+            }
+        }
+
+        return index;
+    }
+
+    /**
+     * 获取当前偏移量下实际应该显示的child的索引
+     *
+     * @param position
+     * @return
+     */
+    private int getIndex2(int position) {
+//        Log.d(ConstantUtil.TAG, "--------------------------------------------");
+//        Log.d(ConstantUtil.TAG, "position:" + position);
+
+        int index = position - mHalfLoadchildCount;
+//        Log.d(ConstantUtil.TAG, "index:" + index);
+
+        int ceil = (int) Math.ceil(mScrollOffset);
+//        Log.d(ConstantUtil.TAG, "ceil:" + ceil);
+        //实际的便宜量
+        int offset = ceil % mLoadChildCount;
+//        Log.d(ConstantUtil.TAG, "offset:" + offset);
+
+        //与初始状态比，是向左滑动了
+        if (offset > 0) {
+//            Log.d(ConstantUtil.TAG, "offset > 0");
+            //对从左边＂消失＂，右边＂出现＂的child作补偿
+            if (position < offset) {
+//                Log.d(ConstantUtil.TAG, "position < offset");
+                index -= mChildCount - mLoadChildCount;
+//                Log.d(ConstantUtil.TAG, "index:" + index);
+            }
+        } else
+            //与初始状态比，是向右滑动了
+            if (offset < 0) {
+//                Log.d(ConstantUtil.TAG, "offset < 0");
+                //对从右边＂消失＂，左边＂出现＂的child作补偿
+                offset += mLoadChildCount;
+//                Log.d(ConstantUtil.TAG, "offset:" + offset);
+                if (position >= offset) {
+//                    Log.d(ConstantUtil.TAG, "position >= offset");
+                    index += mChildCount - mLoadChildCount;
+//                    Log.d(ConstantUtil.TAG, "index:" + index);
                 }
             }
 
